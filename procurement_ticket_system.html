@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProcureDesk — Procurement & Supplier Ticketing</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface2: #EFEDE8;
+  --border: #E0DDD6;
+  --border2: #C8C4BB;
+  --text: #1C1B18;
+  --text2: #6A6860;
+  --text3: #9E9B94;
+  --accent: #1A3A5C;
+  --accent2: #2563EB;
+  --accent-bg: #EEF4FF;
+  --accent-text: #1E3A8A;
+  --green: #166534; --green-bg: #DCFCE7; --green-text: #14532D;
+  --amber: #92400E; --amber-bg: #FEF3C7; --amber-text: #78350F;
+  --red: #991B1B;   --red-bg: #FEE2E2;   --red-text: #7F1D1D;
+  --purple: #5B21B6; --purple-bg: #EDE9FE; --purple-text: #4C1D95;
+  --teal: #0F766E;  --teal-bg: #CCFBF1;  --teal-text: #134E4A;
+  --r: 8px; --rl: 12px; --rx: 16px;
+  --font: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --sidebar: 230px;
+  --topbar: 54px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 13px; }
+button, input, select, textarea { font-family: var(--font); font-size: 13px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+/* ── SHELL ── */
+#app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+.topbar {
+  height: var(--topbar); background: var(--accent); color: #fff;
+  display: flex; align-items: center; padding: 0 20px; gap: 16px;
+  flex-shrink: 0; justify-content: space-between; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon {
+  width: 30px; height: 30px; border-radius: 7px; background: #2563EB;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; letter-spacing: -1px;
+}
+.brand-name { font-size: 15px; font-weight: 700; letter-spacing: -0.4px; }
+.brand-tag { font-size: 10px; color: #93C5FD; font-weight: 400; margin-left: 4px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.fusion-badge {
+  display: flex; align-items: center; gap: 5px; padding: 4px 10px;
+  border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  background: rgba(255,255,255,0.1); color: #93C5FD; border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer; transition: .15s; text-transform: uppercase;
+}
+.fusion-badge:hover { background: rgba(255,255,255,0.18); }
+.fusion-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; }
+.fusion-badge.live .dot { background: #4ADE80; }
+.fusion-badge.live { color: #86EFAC; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.2); }
+.topbar-user { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #93C5FD; }
+.av { width: 26px; height: 26px; border-radius: 50%; background: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+.notif-btn { background: none; border: none; color: #93C5FD; font-size: 16px; cursor: pointer; position: relative; }
+.notif-dot { position: absolute; top: 0; right: 0; width: 7px; height: 7px; background: #F59E0B; border-radius: 50%; border: 1.5px solid var(--accent); }
+
+/* ── BODY ── */
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar); background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.sb-section { padding: 16px 14px 4px; font-size: 9px; font-weight: 700; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 12px 8px 14px;
+  color: var(--text2); cursor: pointer; transition: .12s; margin: 1px 6px;
+  border-radius: var(--r); border-left: 2px solid transparent; font-weight: 400;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent-text); border-left-color: var(--accent2); font-weight: 600; }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; background: var(--red-bg); color: var(--red-text); }
+.nav-badge.blue { background: var(--accent-bg); color: var(--accent-text); }
+
+.sb-fusion {
+  margin: auto 10px 14px; padding: 12px; border-radius: var(--rl);
+  border: 1px solid var(--border); background: var(--surface2);
+}
+.sb-fusion .sbl { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.sb-fusion .sburl { font-family: var(--mono); font-size: 9px; color: var(--text3); word-break: break-all; margin-bottom: 8px; line-height: 1.4; }
+.sb-fusion button { width: 100%; padding: 6px; font-size: 11px; font-weight: 600; background: var(--accent); color: #fff; border: none; border-radius: var(--r); cursor: pointer; letter-spacing: 0.02em; }
+.sb-fusion button:hover { background: var(--accent2); }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; padding: 24px; background: var(--bg); }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.ph { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+.pt { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.ps { font-size: 11px; color: var(--text3); margin-top: 2px; font-weight: 400; }
+.acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 7px 14px; border-radius: var(--r); font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: .12s; letter-spacing: 0.01em;
+}
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn-p { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-p:hover { background: #142e4a; }
+.btn-blue { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+.btn-blue:hover { background: #1d4ed8; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-icon { padding: 6px 8px; }
+
+/* ── KPI STRIP ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl);
+  padding: 14px 16px; position: relative; overflow: hidden;
+}
+.kpi::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--kpi-color, var(--border2)); border-radius: var(--rl) 0 0 var(--rl); }
+.kpi-lbl { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.kpi-val { font-size: 26px; font-weight: 700; letter-spacing: -1px; color: var(--text); }
+.kpi-delta { font-size: 10px; color: var(--text3); margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+.up { color: var(--green); } .dn { color: var(--red); }
+
+/* ── TABLE ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; }
+.toolbar { padding: 12px 16px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.toolbar input { padding: 6px 10px; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg); color: var(--text); flex: 1; min-width: 160px; max-width: 220px; transition: border-color .15s; }
+.toolbar input:focus { outline: none; border-color: var(--accent2); }
+.toolbar select { padding: 6px 10px; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
+.t { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.t th { padding: 9px 14px; text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); background: var(--surface2); border-bottom: 1px solid var(--border); }
+.t td { padding: 10px 14px; border-bottom: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.t tr:last-child td { border-bottom: none; }
+.t tbody tr:hover { background: var(--bg); cursor: pointer; }
+
+/* ── BADGES ── */
+.b { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; }
+.bg { background: var(--green-bg); color: var(--green-text); }
+.ba { background: var(--amber-bg); color: var(--amber-text); }
+.br { background: var(--red-bg); color: var(--red-text); }
+.bb { background: var(--accent-bg); color: var(--accent-text); }
+.bp { background: var(--purple-bg); color: var(--purple-text); }
+.bt { background: var(--teal-bg); color: var(--teal-text); }
+.bn { background: var(--surface2); color: var(--text2); }
+
+/* ── MODAL ── */
+.overlay { position: fixed; inset: 0; background: rgba(28,27,24,.55); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--rx); width: 520px; max-height: 88vh; overflow-y: auto; border: 1px solid var(--border); }
+.mhd { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+.mt { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.mbody { padding: 20px 24px; }
+.mft { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fg { margin-bottom: 14px; }
+.fg label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 5px; }
+.fg input, .fg select, .fg textarea { width: 100%; padding: 8px 10px; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg); color: var(--text); transition: border-color .15s; }
+.fg input:focus, .fg select:focus, .fg textarea:focus { outline: none; border-color: var(--accent2); }
+.fg textarea { resize: vertical; min-height: 70px; }
+.close-btn { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: var(--r); }
+.close-btn:hover { background: var(--surface2); }
+
+/* ── DETAIL PANEL ── */
+.detail-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+.detail-main { display: flex; flex-direction: column; gap: 14px; }
+.detail-side { display: flex; flex-direction: column; gap: 14px; }
+.sec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 16px; }
+.sec-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 12px; }
+.meta-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.meta-row:last-child { border-bottom: none; }
+.meta-key { font-size: 11px; color: var(--text3); font-weight: 500; }
+.meta-val { font-size: 12px; font-weight: 600; color: var(--text); }
+.comment-box { display: flex; flex-direction: column; gap: 10px; }
+.comment { background: var(--bg); border-radius: var(--r); padding: 10px 12px; border: 1px solid var(--border); }
+.c-hd { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.c-author { font-size: 11px; font-weight: 700; color: var(--text); }
+.c-time { font-size: 10px; color: var(--text3); }
+.c-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.comment-input { display: flex; gap: 8px; margin-top: 6px; }
+.comment-input input { flex: 1; padding: 8px 10px; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.comment-input input:focus { outline: none; border-color: var(--accent2); }
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 10px; padding: 7px 0; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-top: 4px; flex-shrink: 0; position: relative; }
+.tl-dot::after { content: ''; position: absolute; top: 8px; left: 3px; width: 1px; height: calc(100% + 6px); background: var(--border); }
+.tl-item:last-child .tl-dot::after { display: none; }
+.tl-body .tl-txt { font-size: 11px; color: var(--text2); }
+.tl-body .tl-time { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* ── TABS ── */
+.tab-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tab { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; transition: .12s; letter-spacing: 0.01em; }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+.tp { display: none; }
+.tp.active { display: block; }
+
+/* ── SUPPLIER SCORE ── */
+.score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.score-c { background: var(--bg); border-radius: var(--r); padding: 10px 12px; border: 1px solid var(--border); }
+.sc-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 4px; }
+.sc-val { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.sc-bar { height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+.sc-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
+
+/* ── FUSION CONNECT PAGE ── */
+.connect-hero { background: var(--accent); color: #fff; border-radius: var(--rx); padding: 28px 32px; margin-bottom: 20px; }
+.ch-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+.ch-sub { font-size: 13px; color: #93C5FD; font-weight: 400; }
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.step-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 16px; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent2); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.step-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.step-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.step-code { font-family: var(--mono); font-size: 10px; background: var(--surface2); padding: 6px 9px; border-radius: var(--r); margin-top: 8px; color: var(--accent-text); border: 1px solid var(--border); word-break: break-all; line-height: 1.6; }
+.ep-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; margin-bottom: 16px; }
+.ep-hd { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); }
+.ep-row { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--border); }
+.ep-row:last-child { border-bottom: none; }
+.ep-m { font-family: var(--mono); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; min-width: 36px; text-align: center; }
+.get { background: var(--accent-bg); color: var(--accent-text); }
+.post { background: var(--green-bg); color: var(--green-text); }
+.patch { background: var(--amber-bg); color: var(--amber-text); }
+.ep-url { font-family: var(--mono); font-size: 10px; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ep-desc { font-size: 11px; color: var(--text3); min-width: 130px; text-align: right; }
+
+/* ── ALERTS / NOTICES ── */
+.notice { padding: 10px 14px; border-radius: var(--r); font-size: 12px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; font-weight: 400; }
+.n-amber { background: var(--amber-bg); color: var(--amber-text); border-left: 3px solid #D97706; border-radius: 0 var(--r) var(--r) 0; }
+.n-red   { background: var(--red-bg);   color: var(--red-text);   border-left: 3px solid #EF4444; border-radius: 0 var(--r) var(--r) 0; }
+.n-green { background: var(--green-bg); color: var(--green-text); border-left: 3px solid #22C55E; border-radius: 0 var(--r) var(--r) 0; }
+.n-blue  { background: var(--accent-bg); color: var(--accent-text); border-left: 3px solid var(--accent2); border-radius: 0 var(--r) var(--r) 0; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty svg { width: 40px; height: 40px; margin: 0 auto 12px; display: block; }
+.empty p { font-size: 13px; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 11px 18px;
+  background: var(--accent); color: #fff; border-radius: var(--rl);
+  font-size: 12px; font-weight: 600; z-index: 2000;
+  transform: translateY(60px); opacity: 0; transition: .3s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">PD</div>
+    <span class="brand-name">ProcureDesk</span>
+    <span class="brand-tag">Supplier & Procurement Ticketing</span>
+  </div>
+  <div class="topbar-right">
+    <div class="fusion-badge" id="fusion-badge" onclick="nav('connect')">
+      <div class="dot"></div>
+      <span id="fusion-status-text">Fusion: Not connected</span>
+    </div>
+    <button class="notif-btn" onclick="nav('tickets')" title="Notifications">
+      🔔<span class="notif-dot"></span>
+    </button>
+    <div class="topbar-user">
+      <div class="av">MH</div>
+      <span>M. Al-Hassan</span>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-section">Tickets</div>
+  <div class="nav-item active" data-page="dashboard" onclick="nav('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </div>
+  <div class="nav-item" data-page="tickets" onclick="nav('tickets')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5v2M15 11v2M15 17v2M5 5h4v2H5zM5 11h4v2H5zM5 17h4v2H5z"/><path d="M3 4h18v16H3z" rx="2"/></svg>
+    All Tickets
+    <span class="nav-badge" id="nb-open">0</span>
+  </div>
+  <div class="nav-item" data-page="new-ticket" onclick="openNewTicket()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    New Ticket
+  </div>
+  <div class="sb-section">Supplier Mgmt</div>
+  <div class="nav-item" data-page="suppliers" onclick="nav('suppliers')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Suppliers
+    <span class="nav-badge blue" id="nb-sup">0</span>
+  </div>
+  <div class="nav-item" data-page="onboarding" onclick="nav('onboarding')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+    Onboarding
+  </div>
+  <div class="sb-section">Procurement</div>
+  <div class="nav-item" data-page="pos" onclick="nav('pos')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Purchase Orders
+  </div>
+  <div class="nav-item" data-page="contracts" onclick="nav('contracts')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Contracts
+  </div>
+  <div class="sb-section">Integration</div>
+  <div class="nav-item" data-page="connect" onclick="nav('connect')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    Oracle Fusion Link
+  </div>
+
+  <div class="sb-fusion">
+    <div class="sbl">Fusion Base URL</div>
+    <div class="sburl" id="sb-url">Not configured</div>
+    <button onclick="nav('connect')">⚙ Configure Fusion</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- ░░ DASHBOARD ░░ -->
+<div class="page active" id="page-dashboard">
+  <div class="ph">
+    <div><div class="pt">Procurement Dashboard</div><div class="ps">Live overview — tickets, suppliers, POs</div></div>
+    <div class="acts">
+      <button class="btn btn-sm" onclick="refreshAll()">↺ Refresh</button>
+      <button class="btn btn-p btn-sm" onclick="openNewTicket()">+ New Ticket</button>
+    </div>
+  </div>
+
+  <div id="dash-alerts"></div>
+
+  <div class="kpi-grid">
+    <div class="kpi" style="--kpi-color:#EF4444">
+      <div class="kpi-lbl">Open Tickets</div>
+      <div class="kpi-val" id="kpi-open">—</div>
+      <div class="kpi-delta" id="kpi-open-d"></div>
+    </div>
+    <div class="kpi" style="--kpi-color:#F59E0B">
+      <div class="kpi-lbl">High Priority</div>
+      <div class="kpi-val" id="kpi-high">—</div>
+      <div class="kpi-delta">Requiring immediate action</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#3B82F6">
+      <div class="kpi-lbl">Pending PO Issues</div>
+      <div class="kpi-val" id="kpi-po">—</div>
+      <div class="kpi-delta">Blocked or awaiting approval</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#22C55E">
+      <div class="kpi-lbl">Active Suppliers</div>
+      <div class="kpi-val" id="kpi-sup">—</div>
+      <div class="kpi-delta">In approved vendor list</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#8B5CF6">
+      <div class="kpi-lbl">Contracts Expiring</div>
+      <div class="kpi-val" id="kpi-contract">—</div>
+      <div class="kpi-delta">Within 60 days</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#14B8A6">
+      <div class="kpi-lbl">Resolved Today</div>
+      <div class="kpi-val" id="kpi-resolved">—</div>
+      <div class="kpi-delta">Avg resolution: <span id="kpi-avg">—</span></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="toolbar" style="justify-content:space-between">
+        <span style="font-weight:700;font-size:12px">Recent Tickets</span>
+        <button class="btn btn-sm" onclick="nav('tickets')">View all →</button>
+      </div>
+      <table class="t">
+        <thead><tr><th style="width:90px">Ref</th><th>Subject</th><th style="width:80px">Priority</th><th style="width:80px">Status</th></tr></thead>
+        <tbody id="dash-tickets"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="toolbar" style="justify-content:space-between">
+        <span style="font-weight:700;font-size:12px">Supplier Alerts</span>
+        <button class="btn btn-sm" onclick="nav('suppliers')">View all →</button>
+      </div>
+      <table class="t">
+        <thead><tr><th>Supplier</th><th style="width:80px">Issue</th><th style="width:70px">Score</th></tr></thead>
+        <tbody id="dash-suppliers"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ ALL TICKETS ░░ -->
+<div class="page" id="page-tickets">
+  <div class="ph">
+    <div><div class="pt">Ticket Management</div><div class="ps">All procurement & supplier tickets</div></div>
+    <div class="acts">
+      <button class="btn btn-p" onclick="openNewTicket()">+ New Ticket</button>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab active" onclick="filterByStatus('all',this)">All <span id="tc-all"></span></button>
+    <button class="tab" onclick="filterByStatus('Open',this)">Open</button>
+    <button class="tab" onclick="filterByStatus('In Progress',this)">In Progress</button>
+    <button class="tab" onclick="filterByStatus('Pending Approval',this)">Pending</button>
+    <button class="tab" onclick="filterByStatus('Resolved',this)">Resolved</button>
+    <button class="tab" onclick="filterByStatus('Closed',this)">Closed</button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" id="ticket-search" placeholder="Search tickets…" oninput="renderTickets()">
+      <select id="ticket-cat" onchange="renderTickets()">
+        <option value="">All Categories</option>
+        <option>PO Issue</option>
+        <option>Invoice Dispute</option>
+        <option>Supplier Onboarding</option>
+        <option>Contract Renewal</option>
+        <option>Delivery Delay</option>
+        <option>Quality Issue</option>
+        <option>Payment Query</option>
+        <option>Compliance</option>
+        <option>Other</option>
+      </select>
+      <select id="ticket-priority" onchange="renderTickets()">
+        <option value="">All Priorities</option>
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+      <select id="ticket-assignee" onchange="renderTickets()">
+        <option value="">All Assignees</option>
+        <option>Khaled Nasser</option>
+        <option>Sara Al-Mansoori</option>
+        <option>Rami Khalil</option>
+        <option>Layla Hassan</option>
+        <option>Unassigned</option>
+      </select>
+    </div>
+    <table class="t">
+      <thead>
+        <tr>
+          <th style="width:90px">Ticket ID</th>
+          <th style="width:200px">Subject</th>
+          <th style="width:110px">Category</th>
+          <th style="width:80px">Priority</th>
+          <th style="width:105px">Status</th>
+          <th style="width:115px">Supplier / PO</th>
+          <th style="width:110px">Assignee</th>
+          <th style="width:85px">Created</th>
+        </tr>
+      </thead>
+      <tbody id="ticket-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ░░ TICKET DETAIL ░░ -->
+<div class="page" id="page-detail">
+  <div class="ph">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-sm" onclick="nav('tickets')">← Back</button>
+        <div class="pt" id="detail-title">Ticket Detail</div>
+      </div>
+      <div class="ps" id="detail-ref" style="margin-top:4px;font-family:var(--mono)"></div>
+    </div>
+    <div class="acts">
+      <select id="detail-status-sel" style="padding:6px 10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--text)" onchange="changeTicketStatus()">
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Pending Approval</option>
+        <option>Resolved</option>
+        <option>Closed</option>
+      </select>
+      <button class="btn btn-blue btn-sm" onclick="syncToFusion()">↗ Sync to Fusion</button>
+    </div>
+  </div>
+  <div class="detail-layout" id="detail-layout"></div>
+</div>
+
+<!-- ░░ SUPPLIERS ░░ -->
+<div class="page" id="page-suppliers">
+  <div class="ph">
+    <div><div class="pt">Supplier Registry</div><div class="ps">Approved vendor list — linked to Oracle Fusion</div></div>
+    <div class="acts">
+      <button class="btn btn-p" onclick="openSupplierModal()">+ Register Supplier</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" id="sup-search" placeholder="Search suppliers…" oninput="renderSuppliers()">
+      <select id="sup-status" onchange="renderSuppliers()">
+        <option value="">All Status</option>
+        <option>Active</option>
+        <option>Under Review</option>
+        <option>Suspended</option>
+        <option>Pending Onboarding</option>
+      </select>
+      <select id="sup-category" onchange="renderSuppliers()">
+        <option value="">All Categories</option>
+        <option>IT & Technology</option>
+        <option>Facilities</option>
+        <option>Logistics</option>
+        <option>Professional Services</option>
+        <option>Raw Materials</option>
+        <option>MRO</option>
+      </select>
+    </div>
+    <table class="t">
+      <thead>
+        <tr>
+          <th style="width:110px">Supplier ID</th>
+          <th style="width:180px">Company Name</th>
+          <th style="width:110px">Category</th>
+          <th style="width:90px">Status</th>
+          <th style="width:80px">Score</th>
+          <th style="width:100px">Open Tickets</th>
+          <th style="width:100px">Contract Exp.</th>
+          <th style="width:80px">Fusion Sync</th>
+        </tr>
+      </thead>
+      <tbody id="sup-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ░░ ONBOARDING ░░ -->
+<div class="page" id="page-onboarding">
+  <div class="ph">
+    <div><div class="pt">Supplier Onboarding</div><div class="ps">Track new supplier qualification and approval pipeline</div></div>
+    <div class="acts">
+      <button class="btn btn-p" onclick="openNewTicket('Supplier Onboarding')">+ New Onboarding Request</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="kanban-board"></div>
+</div>
+
+<!-- ░░ PURCHASE ORDERS ░░ -->
+<div class="page" id="page-pos">
+  <div class="ph">
+    <div><div class="pt">Purchase Order Issues</div><div class="ps">PO-linked tickets — synced from Oracle Fusion</div></div>
+    <div class="acts">
+      <button class="btn btn-blue btn-sm" onclick="syncFusionPOs()">↗ Sync from Fusion</button>
+      <button class="btn btn-p" onclick="openNewTicket('PO Issue')">+ Raise PO Issue</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" id="po-search" placeholder="Search PO number, supplier…" oninput="renderPOs()">
+      <select id="po-status" onchange="renderPOs()">
+        <option value="">All Status</option>
+        <option>Blocked</option>
+        <option>Awaiting Approval</option>
+        <option>Disputed</option>
+        <option>Resolved</option>
+      </select>
+    </div>
+    <table class="t">
+      <thead>
+        <tr>
+          <th style="width:100px">PO Number</th>
+          <th style="width:80px">Ticket</th>
+          <th style="width:160px">Supplier</th>
+          <th style="width:100px">PO Value</th>
+          <th style="width:100px">Issue Type</th>
+          <th style="width:100px">Status</th>
+          <th style="width:90px">Raised By</th>
+          <th style="width:80px">Age</th>
+        </tr>
+      </thead>
+      <tbody id="po-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ░░ CONTRACTS ░░ -->
+<div class="page" id="page-contracts">
+  <div class="ph">
+    <div><div class="pt">Contract Tracker</div><div class="ps">Supplier contracts — renewal and compliance alerts</div></div>
+    <div class="acts">
+      <button class="btn btn-p" onclick="openNewTicket('Contract Renewal')">+ Contract Ticket</button>
+    </div>
+  </div>
+  <div id="contract-alerts"></div>
+  <div class="card">
+    <table class="t">
+      <thead>
+        <tr>
+          <th style="width:110px">Contract ID</th>
+          <th style="width:170px">Supplier</th>
+          <th style="width:130px">Description</th>
+          <th style="width:90px">Value (USD)</th>
+          <th style="width:90px">Expiry</th>
+          <th style="width:80px">Days Left</th>
+          <th style="width:90px">Status</th>
+          <th style="width:80px">Action</th>
+        </tr>
+      </thead>
+      <tbody id="contract-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ░░ ORACLE FUSION CONNECT ░░ -->
+<div class="page" id="page-connect">
+  <div class="ph">
+    <div><div class="pt">Oracle Fusion Integration</div><div class="ps">Connect ProcureDesk to your Oracle Fusion Cloud instance</div></div>
+  </div>
+
+  <div class="connect-hero">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
+      <div style="width:46px;height:46px;border-radius:10px;background:#C74634;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">OCI</div>
+      <div>
+        <div class="ch-title">Link to Oracle Fusion Cloud</div>
+        <div class="ch-sub">REST API integration — Suppliers, POs, Contracts pulled live from Fusion</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:rgba(255,255,255,0.1);border-radius:var(--r);padding:7px 14px;font-size:11px;color:#BAE6FD">✓ Procurement Cloud REST v23</div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:var(--r);padding:7px 14px;font-size:11px;color:#BAE6FD">✓ OAuth 2.0 / Basic Auth</div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:var(--r);padding:7px 14px;font-size:11px;color:#BAE6FD">✓ Bi-directional ticket sync</div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:var(--r);padding:7px 14px;font-size:11px;color:#BAE6FD">✓ Supplier registry pull</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:16px">Connection Settings</div>
+    <div class="frow" style="margin-bottom:12px">
+      <div class="fg" style="margin:0">
+        <label>Fusion Base URL</label>
+        <input type="text" id="fusion-url" placeholder="https://your-instance.fa.us2.oraclecloud.com" oninput="updateFusionURL()">
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Auth Method</label>
+        <select id="fusion-auth-method" onchange="toggleAuthFields()">
+          <option value="basic">Basic Auth (Username / Password)</option>
+          <option value="oauth">OAuth 2.0 Client Credentials</option>
+        </select>
+      </div>
+    </div>
+    <div id="auth-basic" class="frow" style="margin-bottom:12px">
+      <div class="fg" style="margin:0"><label>Username</label><input type="text" id="fusion-user" placeholder="integration_user@company.com"></div>
+      <div class="fg" style="margin:0"><label>Password</label><input type="password" id="fusion-pass" placeholder="••••••••••"></div>
+    </div>
+    <div id="auth-oauth" style="display:none" class="frow" style="margin-bottom:12px">
+      <div class="fg" style="margin:0"><label>Client ID</label><input type="text" id="fusion-client-id" placeholder="client_id"></div>
+      <div class="fg" style="margin:0"><label>Client Secret</label><input type="password" id="fusion-client-secret" placeholder="client_secret"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+      <button class="btn btn-blue" onclick="testFusionConnection()">Test Connection</button>
+      <button class="btn btn-p" onclick="saveFusionConfig()">Save & Connect</button>
+      <span id="test-result" style="font-size:11px;font-weight:600"></span>
+    </div>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-title">Find your Fusion URL</div>
+      <div class="step-desc">Log into Oracle Fusion Cloud. Copy the base URL from your browser address bar — stop before <code>/fscmUI</code>.</div>
+      <div class="step-code">https://[company]-test.fa.us2.oraclecloud.com</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-title">Create Integration User</div>
+      <div class="step-desc">In Fusion, go to Security Console → Users. Create a user with the roles: <strong>Procurement Integration Specialist</strong> and <strong>Supplier Portal Manager</strong>.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-title">Enable REST Services</div>
+      <div class="step-desc">Confirm REST services are enabled via: Setup & Maintenance → Offerings → Procurement → Feature Selection. Enable <strong>REST Inbound Suppliers</strong>.</div>
+      <div class="step-code">Navigator → Tools → REST API Explorer</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-title">Test & Go Live</div>
+      <div class="step-desc">Click "Test Connection" to verify. Once connected, ProcureDesk will pull Suppliers, POs, and Contracts from Fusion automatically.</div>
+    </div>
+  </div>
+
+  <div class="ep-table">
+    <div class="ep-hd">Oracle Fusion REST Endpoints Used</div>
+    <div class="ep-row"><span class="ep-m get">GET</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/suppliers</span><span class="ep-desc">Pull supplier list</span></div>
+    <div class="ep-row"><span class="ep-m get">GET</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/purchaseOrders</span><span class="ep-desc">Pull POs</span></div>
+    <div class="ep-row"><span class="ep-m get">GET</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/purchaseOrders/{id}/lines</span><span class="ep-desc">PO line details</span></div>
+    <div class="ep-row"><span class="ep-m post">POST</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/suppliers</span><span class="ep-desc">Create supplier</span></div>
+    <div class="ep-row"><span class="ep-m get">GET</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/supplierInvoices</span><span class="ep-desc">Invoice disputes</span></div>
+    <div class="ep-row"><span class="ep-m patch">PATCH</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/purchaseOrders/{id}</span><span class="ep-desc">Update PO status</span></div>
+    <div class="ep-row"><span class="ep-m get">GET</span><span class="ep-url">/fscmRestApi/resources/11.13.18.05/contractHeaders</span><span class="ep-desc">Pull contracts</span></div>
+  </div>
+
+  <div class="notice n-blue" style="margin-top:4px">
+    <span>ℹ</span>
+    <span>This tool runs entirely in your browser. Credentials are stored only in your browser's localStorage and are never sent to any third-party server. All API calls go directly from your browser to your Oracle Fusion instance.</span>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /body -->
+</div><!-- /app -->
+
+<!-- ░░ NEW TICKET MODAL ░░ -->
+<div class="overlay" id="ticket-modal">
+  <div class="modal">
+    <div class="mhd">
+      <span class="mt">New Procurement Ticket</span>
+      <button class="close-btn" onclick="closeModal('ticket-modal')">×</button>
+    </div>
+    <div class="mbody">
+      <div class="fg"><label>Subject *</label><input type="text" id="nt-subject" placeholder="Brief description of the issue"></div>
+      <div class="frow">
+        <div class="fg"><label>Category *</label>
+          <select id="nt-cat">
+            <option>PO Issue</option>
+            <option>Invoice Dispute</option>
+            <option>Supplier Onboarding</option>
+            <option>Contract Renewal</option>
+            <option>Delivery Delay</option>
+            <option>Quality Issue</option>
+            <option>Payment Query</option>
+            <option>Compliance</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="fg"><label>Priority</label>
+          <select id="nt-priority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Supplier / Vendor</label><input type="text" id="nt-supplier" placeholder="Select or type supplier name"></div>
+        <div class="fg"><label>PO / Contract Ref</label><input type="text" id="nt-poref" placeholder="e.g. PO-2025-0441"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Assign To</label>
+          <select id="nt-assignee">
+            <option>Unassigned</option>
+            <option>Khaled Nasser</option>
+            <option>Sara Al-Mansoori</option>
+            <option>Rami Khalil</option>
+            <option>Layla Hassan</option>
+          </select>
+        </div>
+        <div class="fg"><label>Due Date</label><input type="date" id="nt-due"></div>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="nt-desc" placeholder="Describe the issue in detail — include any relevant PO numbers, amounts, or delivery references…"></textarea></div>
+      <div class="fg"><label>Fusion Object ID (optional)</label><input type="text" id="nt-fusion-id" placeholder="Oracle Fusion PO/Supplier/Contract ID for auto-link"></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeModal('ticket-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitTicket()">Create Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ SUPPLIER MODAL ░░ -->
+<div class="overlay" id="supplier-modal">
+  <div class="modal">
+    <div class="mhd"><span class="mt">Register Supplier</span><button class="close-btn" onclick="closeModal('supplier-modal')">×</button></div>
+    <div class="mbody">
+      <div class="frow">
+        <div class="fg"><label>Company Name *</label><input type="text" id="ns-name" placeholder="Full legal name"></div>
+        <div class="fg"><label>Category</label>
+          <select id="ns-cat">
+            <option>IT & Technology</option><option>Facilities</option><option>Logistics</option>
+            <option>Professional Services</option><option>Raw Materials</option><option>MRO</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Contact Name</label><input type="text" id="ns-contact" placeholder="Primary contact"></div>
+        <div class="fg"><label>Contact Email</label><input type="email" id="ns-email" placeholder="contact@supplier.com"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Country</label><input type="text" id="ns-country" placeholder="UAE, KSA, USA…"></div>
+        <div class="fg"><label>Annual Spend (USD)</label><input type="number" id="ns-spend" placeholder="0"></div>
+      </div>
+      <div class="fg"><label>Oracle Fusion Supplier ID</label><input type="text" id="ns-fusion-id" placeholder="From Fusion supplier registry (optional)"></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeModal('supplier-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitSupplier()">Register Supplier</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let tickets = [], suppliers = [], poIssues = [], contracts = [];
+let currentTicketFilter = 'all';
+let fusionConfig = JSON.parse(localStorage.getItem('pd_fusion_config') || '{}');
+let activeDetailId = null;
+
+const AGENTS = ['Khaled Nasser','Sara Al-Mansoori','Rami Khalil','Layla Hassan','Unassigned'];
+
+// ════════════════════════════════════════════════
+//  SEED DATA
+// ════════════════════════════════════════════════
+function seedData() {
+  tickets = [
+    { id:'TKT-1001', subject:'PO-2025-0441 blocked — budget code mismatch', cat:'PO Issue', priority:'Critical', status:'Open', supplier:'Al Futtaim Tech', poRef:'PO-2025-0441', assignee:'Khaled Nasser', created:'2026-05-12', due:'2026-05-14', desc:'Budget code 4500-IT-UAE does not match approved cost center. PO value USD 42,500 held pending finance sign-off.', fusionId:'PO-441', comments:[{author:'Khaled Nasser',time:'May 12, 09:14',text:'Escalated to Finance. Awaiting reallocation approval from CFO office.'}], history:[{txt:'Ticket created',time:'May 12, 08:50'},{txt:'Assigned to Khaled Nasser',time:'May 12, 08:51'},{txt:'Status → Open',time:'May 12, 08:51'}] },
+    { id:'TKT-1002', subject:'Delivery delay — Cisco network equipment ETA overdue', cat:'Delivery Delay', priority:'High', status:'In Progress', supplier:'Cisco Systems ME', poRef:'PO-2025-0389', assignee:'Sara Al-Mansoori', created:'2026-05-11', due:'2026-05-15', desc:'Shipment of 24 Catalyst 9300 switches scheduled May 8 has not arrived. Supplier claiming customs hold in Dubai.', fusionId:'', comments:[{author:'Sara Al-Mansoori',time:'May 11, 14:22',text:'Contacted Cisco account manager. Customs release expected within 48h.'},{author:'Supplier Portal',time:'May 12, 11:05',text:'Shipment cleared customs — expected delivery May 14.'}], history:[{txt:'Ticket created',time:'May 11, 11:00'},{txt:'Status → In Progress',time:'May 11, 14:22'}] },
+    { id:'TKT-1003', subject:'Invoice INV-2026-0221 disputed — quantity variance', cat:'Invoice Dispute', priority:'High', status:'Pending Approval', supplier:'Emirates Logistics', poRef:'INV-2026-0221', assignee:'Rami Khalil', created:'2026-05-10', due:'2026-05-18', desc:'Supplier invoiced for 500 units; GRN confirms only 480 units received. Dispute value: AED 12,400.', fusionId:'INV-221', comments:[], history:[{txt:'Ticket created',time:'May 10, 09:00'},{txt:'Sent to supplier for credit note',time:'May 11, 10:30'}] },
+    { id:'TKT-1004', subject:'New supplier onboarding — Al Jazeera Printing', cat:'Supplier Onboarding', priority:'Medium', status:'In Progress', supplier:'Al Jazeera Printing', poRef:'', assignee:'Layla Hassan', created:'2026-05-09', due:'2026-05-22', desc:'New print supplier qualification required. Documents pending: Trade License, VAT Certificate, Bank Letter.', fusionId:'', comments:[{author:'Layla Hassan',time:'May 10, 10:00',text:'Trade License received. Awaiting VAT certificate from supplier.'}], history:[{txt:'Ticket created',time:'May 09, 15:00'},{txt:'Documents checklist sent to supplier',time:'May 09, 15:30'}] },
+    { id:'TKT-1005', subject:'Contract CNT-2024-015 renewal — Oracle Support', cat:'Contract Renewal', priority:'Medium', status:'Open', supplier:'Oracle Corporation', poRef:'CNT-2024-015', assignee:'Khaled Nasser', created:'2026-05-08', due:'2026-06-01', desc:'Oracle Annual Support contract expires June 30. Renewal quote received — 12% increase. Requires procurement manager sign-off.', fusionId:'', comments:[], history:[{txt:'Ticket created',time:'May 08, 09:00'}] },
+    { id:'TKT-1006', subject:'Quality issue — non-conforming IT accessories batch', cat:'Quality Issue', priority:'Low', status:'Resolved', supplier:'TechZone Distribution', poRef:'PO-2025-0412', assignee:'Sara Al-Mansoori', created:'2026-05-07', due:'2026-05-14', desc:'50 units of USB-C hubs failed QC inspection. Supplier agreed to full replacement shipment.', fusionId:'', comments:[{author:'Sara Al-Mansoori',time:'May 09, 13:00',text:'Replacement shipment confirmed. Ticket resolved.'}], history:[{txt:'Ticket created',time:'May 07, 11:00'},{txt:'Status → Resolved',time:'May 09, 13:00'}] },
+    { id:'TKT-1007', subject:'Payment query — overdue payment to AECOM', cat:'Payment Query', priority:'High', status:'Open', supplier:'AECOM Middle East', poRef:'INV-2026-0198', assignee:'Unassigned', created:'2026-05-13', due:'2026-05-16', desc:'AECOM invoice 120 days overdue. Supplier threatening service suspension. Finance confirmed payment queued but bank delay.', fusionId:'', comments:[], history:[{txt:'Ticket created',time:'May 13, 08:00'}] },
+    { id:'TKT-1008', subject:'Compliance — supplier ESG documentation required', cat:'Compliance', priority:'Low', status:'Open', supplier:'Green Build LLC', poRef:'', assignee:'Layla Hassan', created:'2026-05-06', due:'2026-05-31', desc:'New ESG policy requires all Tier-1 suppliers to submit sustainability report. Green Build yet to submit.', fusionId:'', comments:[], history:[{txt:'Ticket created',time:'May 06, 10:00'}] },
+  ];
+
+  suppliers = [
+    { id:'SUP-0081', name:'Al Futtaim Tech', cat:'IT & Technology', status:'Active', score:82, openTickets:2, contractExp:'2026-12-31', fusionSync:true, country:'UAE', spend:1250000 },
+    { id:'SUP-0047', name:'Cisco Systems ME', cat:'IT & Technology', status:'Active', score:91, openTickets:1, contractExp:'2027-03-15', fusionSync:true, country:'UAE', spend:890000 },
+    { id:'SUP-0063', name:'Emirates Logistics', cat:'Logistics', status:'Under Review', score:67, openTickets:3, contractExp:'2026-08-01', fusionSync:true, country:'UAE', spend:430000 },
+    { id:'SUP-0029', name:'Oracle Corporation', cat:'IT & Technology', status:'Active', score:95, openTickets:1, contractExp:'2026-06-30', fusionSync:true, country:'USA', spend:2100000 },
+    { id:'SUP-0055', name:'TechZone Distribution', cat:'IT & Technology', status:'Active', score:74, openTickets:0, contractExp:'2026-11-15', fusionSync:false, country:'UAE', spend:320000 },
+    { id:'SUP-0072', name:'AECOM Middle East', cat:'Professional Services', status:'Active', score:88, openTickets:1, contractExp:'2026-09-30', fusionSync:true, country:'UAE', spend:750000 },
+    { id:'SUP-0091', name:'Al Jazeera Printing', cat:'Facilities', status:'Pending Onboarding', score:0, openTickets:1, contractExp:'—', fusionSync:false, country:'UAE', spend:0 },
+    { id:'SUP-0034', name:'Green Build LLC', cat:'Facilities', status:'Active', score:79, openTickets:1, contractExp:'2027-01-20', fusionSync:false, country:'UAE', spend:180000 },
+  ];
+
+  poIssues = [
+    { po:'PO-2025-0441', ticket:'TKT-1001', supplier:'Al Futtaim Tech', value:'USD 42,500', issue:'Budget Mismatch', status:'Blocked', raisedBy:'Khaled Nasser', age:2 },
+    { po:'PO-2025-0389', ticket:'TKT-1002', supplier:'Cisco Systems ME', value:'USD 187,200', issue:'Delivery Delay', status:'Awaiting Approval', raisedBy:'Sara Al-Mansoori', age:3 },
+    { po:'INV-2026-0221', ticket:'TKT-1003', supplier:'Emirates Logistics', value:'AED 12,400', issue:'Invoice Variance', status:'Disputed', raisedBy:'Rami Khalil', age:4 },
+    { po:'PO-2025-0412', ticket:'TKT-1006', supplier:'TechZone Distribution', value:'USD 6,800', issue:'Quality Rejection', status:'Resolved', raisedBy:'Sara Al-Mansoori', age:7 },
+    { po:'INV-2026-0198', ticket:'TKT-1007', supplier:'AECOM Middle East', value:'AED 98,000', issue:'Overdue Payment', status:'Blocked', raisedBy:'Finance Dept', age:1 },
+  ];
+
+  contracts = [
+    { id:'CNT-2024-015', supplier:'Oracle Corporation', desc:'Annual Support & Maintenance', value:'2,100,000', expiry:'2026-06-30', daysLeft:48, status:'Expiring Soon' },
+    { id:'CNT-2023-041', supplier:'Emirates Logistics', desc:'3PL Warehousing & Distribution', value:'430,000', expiry:'2026-08-01', daysLeft:80, status:'Active' },
+    { id:'CNT-2024-002', supplier:'Al Futtaim Tech', desc:'IT Hardware Supply Agreement', value:'1,250,000', expiry:'2026-12-31', daysLeft:232, status:'Active' },
+    { id:'CNT-2022-009', supplier:'AECOM Middle East', desc:'Facilities Management Services', value:'750,000', expiry:'2026-09-30', daysLeft:140, status:'Active' },
+    { id:'CNT-2025-011', supplier:'Cisco Systems ME', desc:'Network Infrastructure', value:'890,000', expiry:'2027-03-15', daysLeft:306, status:'Active' },
+    { id:'CNT-2024-031', supplier:'TechZone Distribution', desc:'IT Accessories Supply', value:'320,000', expiry:'2026-11-15', daysLeft:186, status:'Active' },
+  ];
+}
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  const ni = document.querySelector(`[data-page="${page}"]`);
+  if (ni) ni.classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'tickets') renderTickets();
+  if (page === 'suppliers') renderSuppliers();
+  if (page === 'onboarding') renderKanban();
+  if (page === 'pos') renderPOs();
+  if (page === 'contracts') renderContracts();
+  if (page === 'connect') loadConnectPage();
+}
+
+// ════════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════════
+function renderDashboard() {
+  const open = tickets.filter(t => t.status === 'Open').length;
+  const high = tickets.filter(t => (t.priority === 'High' || t.priority === 'Critical') && t.status !== 'Resolved' && t.status !== 'Closed').length;
+  const poPend = poIssues.filter(p => p.status === 'Blocked' || p.status === 'Awaiting Approval').length;
+  const activeSup = suppliers.filter(s => s.status === 'Active').length;
+  const expiring = contracts.filter(c => c.daysLeft <= 60).length;
+  const resolved = tickets.filter(t => t.status === 'Resolved').length;
+
+  document.getElementById('kpi-open').textContent = open;
+  document.getElementById('kpi-high').textContent = high;
+  document.getElementById('kpi-po').textContent = poPend;
+  document.getElementById('kpi-sup').textContent = activeSup;
+  document.getElementById('kpi-contract').textContent = expiring;
+  document.getElementById('kpi-resolved').textContent = resolved;
+  document.getElementById('kpi-avg').textContent = '1.8 days';
+  document.getElementById('nb-open').textContent = open;
+  document.getElementById('nb-sup').textContent = suppliers.length;
+
+  const alerts = document.getElementById('dash-alerts');
+  const criticals = tickets.filter(t => t.priority === 'Critical' && t.status !== 'Resolved');
+  alerts.innerHTML = criticals.map(t =>
+    `<div class="notice n-red">⚠ <strong>${t.id}</strong> — ${t.subject} <button class="btn btn-sm" style="margin-left:auto" onclick="openDetail('${t.id}')">View →</button></div>`
+  ).join('') + (expiring > 0 ? `<div class="notice n-amber">📋 ${expiring} contract(s) expiring within 60 days — <button class="btn btn-sm" onclick="nav('contracts')">Review →</button></div>` : '');
+
+  const recentRows = tickets.slice(0, 6).map(t =>
+    `<tr onclick="openDetail('${t.id}')"><td style="font-family:var(--mono);font-size:11px">${t.id}</td><td style="font-weight:500">${t.subject.substring(0,38)}${t.subject.length>38?'…':''}</td><td>${priBadge(t.priority)}</td><td>${statusBadge(t.status)}</td></tr>`
+  ).join('');
+  document.getElementById('dash-tickets').innerHTML = recentRows;
+
+  const supAlerts = suppliers.filter(s => s.score < 75 || s.status === 'Under Review' || s.openTickets > 1);
+  document.getElementById('dash-suppliers').innerHTML = supAlerts.map(s =>
+    `<tr onclick="nav('suppliers')"><td style="font-weight:500">${s.name}</td><td>${s.status === 'Under Review' ? '<span class="b ba">Review</span>' : s.openTickets > 1 ? '<span class="b br">'+s.openTickets+' tickets</span>' : '<span class="b ba">Low score</span>'}</td><td><span style="font-weight:700;color:${s.score<70?'var(--red)':s.score<80?'var(--amber)':'var(--green)'}">${s.score || '—'}</span></td></tr>`
+  ).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text3)">No supplier alerts</td></tr>';
+}
+
+// ════════════════════════════════════════════════
+//  TICKETS
+// ════════════════════════════════════════════════
+let ticketStatusFilter = 'all';
+function filterByStatus(s, el) {
+  ticketStatusFilter = s;
+  document.querySelectorAll('.tab-row .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTickets();
+}
+
+function renderTickets() {
+  const q = (document.getElementById('ticket-search')?.value || '').toLowerCase();
+  const cat = document.getElementById('ticket-cat')?.value || '';
+  const pri = document.getElementById('ticket-priority')?.value || '';
+  const asgn = document.getElementById('ticket-assignee')?.value || '';
+  let list = tickets;
+  if (ticketStatusFilter !== 'all') list = list.filter(t => t.status === ticketStatusFilter);
+  if (q) list = list.filter(t => t.id.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q) || (t.supplier||'').toLowerCase().includes(q) || (t.poRef||'').toLowerCase().includes(q));
+  if (cat) list = list.filter(t => t.cat === cat);
+  if (pri) list = list.filter(t => t.priority === pri);
+  if (asgn) list = list.filter(t => t.assignee === asgn);
+  document.getElementById('ticket-tbody').innerHTML = list.map(t =>
+    `<tr onclick="openDetail('${t.id}')">
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text2)">${t.id}</td>
+      <td style="font-weight:500">${t.subject.substring(0,42)}${t.subject.length>42?'…':''}</td>
+      <td><span class="b bn">${t.cat}</span></td>
+      <td>${priBadge(t.priority)}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td style="font-size:11px">${t.supplier||'—'}</td>
+      <td style="font-size:11px">${t.assignee}</td>
+      <td style="font-size:11px;color:var(--text3)">${t.created}</td>
+    </tr>`
+  ).join('') || '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text3)">No tickets match your filters</td></tr>';
+  const all = document.getElementById('tc-all');
+  if (all) all.textContent = '(' + tickets.length + ')';
+}
+
+// ════════════════════════════════════════════════
+//  TICKET DETAIL
+// ════════════════════════════════════════════════
+function openDetail(id) {
+  const t = tickets.find(x => x.id === id);
+  if (!t) return;
+  activeDetailId = id;
+  document.getElementById('detail-title').textContent = t.subject;
+  document.getElementById('detail-ref').textContent = t.id + (t.fusionId ? '  ·  Fusion: ' + t.fusionId : '');
+  const sel = document.getElementById('detail-status-sel');
+  sel.value = t.status;
+
+  const commentsHTML = (t.comments||[]).map(c =>
+    `<div class="comment"><div class="c-hd"><span class="c-author">${c.author}</span><span class="c-time">${c.time}</span></div><div class="c-text">${c.text}</div></div>`
+  ).join('') || '<div style="color:var(--text3);font-size:12px;padding:8px 0">No comments yet.</div>';
+
+  const histHTML = (t.history||[]).map(h =>
+    `<div class="tl-item"><div class="tl-dot"></div><div class="tl-body"><div class="tl-txt">${h.txt}</div><div class="tl-time">${h.time}</div></div></div>`
+  ).join('');
+
+  document.getElementById('detail-layout').innerHTML = `
+    <div class="detail-main">
+      <div class="sec">
+        <div class="sec-title">Description</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">${t.desc}</p>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Comments</div>
+        <div class="comment-box" id="comments-box-${id}">${commentsHTML}</div>
+        <div class="comment-input" style="margin-top:12px">
+          <input type="text" id="new-comment" placeholder="Add a comment…">
+          <button class="btn btn-p btn-sm" onclick="addComment('${id}')">Post</button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-side">
+      <div class="sec">
+        <div class="sec-title">Ticket Details</div>
+        <div class="meta-row"><span class="meta-key">Category</span><span class="meta-val"><span class="b bn">${t.cat}</span></span></div>
+        <div class="meta-row"><span class="meta-key">Priority</span><span class="meta-val">${priBadge(t.priority)}</span></div>
+        <div class="meta-row"><span class="meta-key">Status</span><span class="meta-val">${statusBadge(t.status)}</span></div>
+        <div class="meta-row"><span class="meta-key">Supplier</span><span class="meta-val">${t.supplier||'—'}</span></div>
+        <div class="meta-row"><span class="meta-key">PO / Ref</span><span class="meta-val" style="font-family:var(--mono);font-size:11px">${t.poRef||'—'}</span></div>
+        <div class="meta-row"><span class="meta-key">Assignee</span><span class="meta-val">${t.assignee}</span></div>
+        <div class="meta-row"><span class="meta-key">Created</span><span class="meta-val">${t.created}</span></div>
+        <div class="meta-row"><span class="meta-key">Due</span><span class="meta-val" style="${t.due?'color:var(--amber)':''}">${t.due||'—'}</span></div>
+        ${t.fusionId ? `<div class="meta-row"><span class="meta-key">Fusion ID</span><span class="meta-val" style="font-family:var(--mono);font-size:11px;color:var(--accent2)">${t.fusionId}</span></div>` : ''}
+      </div>
+      <div class="sec">
+        <div class="sec-title">Activity Timeline</div>
+        <div class="timeline">${histHTML}</div>
+      </div>
+      ${fusionConfig.url ? `<div class="sec"><div class="sec-title">Oracle Fusion</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Sync this ticket to Oracle Fusion as a supplier interaction note.</div>
+        <button class="btn btn-blue btn-sm" style="width:100%" onclick="syncToFusion()">↗ Push to Fusion</button>
+      </div>` : `<div class="sec"><div class="sec-title">Oracle Fusion</div><div style="font-size:11px;color:var(--text3)">Fusion not configured. <a onclick="nav('connect')" style="color:var(--accent2);cursor:pointer;font-weight:600">Connect now →</a></div></div>`}
+    </div>`;
+
+  nav('detail');
+}
+
+function changeTicketStatus() {
+  const t = tickets.find(x => x.id === activeDetailId);
+  if (!t) return;
+  const newStatus = document.getElementById('detail-status-sel').value;
+  t.status = newStatus;
+  t.history.push({ txt: 'Status → ' + newStatus, time: 'Just now' });
+  toast('Status updated to ' + newStatus);
+  openDetail(activeDetailId);
+}
+
+function addComment(id) {
+  const inp = document.getElementById('new-comment');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  const t = tickets.find(x => x.id === id);
+  if (!t) return;
+  t.comments.push({ author: 'M. Al-Hassan', time: 'Just now', text: txt });
+  t.history.push({ txt: 'Comment added', time: 'Just now' });
+  inp.value = '';
+  openDetail(id);
+  toast('Comment posted');
+}
+
+// ════════════════════════════════════════════════
+//  SUPPLIERS
+// ════════════════════════════════════════════════
+function renderSuppliers() {
+  const q = (document.getElementById('sup-search')?.value || '').toLowerCase();
+  const st = document.getElementById('sup-status')?.value || '';
+  const cat = document.getElementById('sup-category')?.value || '';
+  let list = suppliers;
+  if (q) list = list.filter(s => s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q));
+  if (st) list = list.filter(s => s.status === st);
+  if (cat) list = list.filter(s => s.cat === cat);
+  document.getElementById('sup-tbody').innerHTML = list.map(s => {
+    const sc = s.score;
+    const scColor = sc >= 85 ? 'var(--green)' : sc >= 70 ? 'var(--amber)' : sc > 0 ? 'var(--red)' : 'var(--text3)';
+    const syncBadge = s.fusionSync ? '<span class="b bt">Synced</span>' : '<span class="b bn">Local</span>';
+    return `<tr onclick="nav('suppliers')">
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text2)">${s.id}</td>
+      <td style="font-weight:600">${s.name}</td>
+      <td><span class="b bn">${s.cat}</span></td>
+      <td>${supStatusBadge(s.status)}</td>
+      <td><span style="font-weight:700;color:${scColor}">${sc > 0 ? sc + '/100' : '—'}</span></td>
+      <td style="text-align:center">${s.openTickets > 0 ? `<span class="b br">${s.openTickets}</span>` : '<span class="b bg">0</span>'}</td>
+      <td style="font-size:11px;color:${s.contractExp==='—'?'var(--text3)':'var(--text)'}">${s.contractExp}</td>
+      <td>${syncBadge}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text3)">No suppliers found</td></tr>';
+}
+
+// ════════════════════════════════════════════════
+//  KANBAN (ONBOARDING)
+// ════════════════════════════════════════════════
+function renderKanban() {
+  const stages = ['Documents Requested','Under Review','Compliance Check','Approved'];
+  const colors = ['var(--amber-bg)','var(--accent-bg)','var(--purple-bg)','var(--green-bg)'];
+  const textColors = ['var(--amber-text)','var(--accent-text)','var(--purple-text)','var(--green-text)'];
+  const onboardTickets = tickets.filter(t => t.cat === 'Supplier Onboarding');
+  const assigned = {
+    'Documents Requested': [suppliers.find(s=>s.name==='Al Jazeera Printing')].filter(Boolean),
+    'Under Review': [], 'Compliance Check': [], 'Approved': []
+  };
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = stages.map((stage, i) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">
+      <div style="padding:12px 14px;background:${colors[i]};color:${textColors[i]};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border)">${stage}</div>
+      <div style="padding:10px;display:flex;flex-direction:column;gap:8px;min-height:100px">
+        ${(assigned[stage]||[]).map(s => `
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px">
+            <div style="font-weight:600;font-size:12px;margin-bottom:4px">${s.name}</div>
+            <div style="font-size:10px;color:var(--text3)">${s.cat} · ${s.country}</div>
+            <div style="margin-top:6px"><span class="b ba">Pending docs</span></div>
+          </div>`).join('')}
+        ${assigned[stage].length === 0 ? '<div style="font-size:11px;color:var(--text3);text-align:center;padding:12px 0">No suppliers</div>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  PO ISSUES
+// ════════════════════════════════════════════════
+function renderPOs() {
+  const q = (document.getElementById('po-search')?.value || '').toLowerCase();
+  const st = document.getElementById('po-status')?.value || '';
+  let list = poIssues;
+  if (q) list = list.filter(p => p.po.toLowerCase().includes(q) || p.supplier.toLowerCase().includes(q));
+  if (st) list = list.filter(p => p.status === st);
+  const statusMap = { 'Blocked': 'br', 'Awaiting Approval': 'ba', 'Disputed': 'bp', 'Resolved': 'bg' };
+  document.getElementById('po-tbody').innerHTML = list.map(p =>
+    `<tr onclick="openDetail('${p.ticket}')">
+      <td style="font-family:var(--mono);font-size:11px">${p.po}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--accent2)">${p.ticket}</td>
+      <td style="font-weight:500">${p.supplier}</td>
+      <td style="font-weight:700">${p.value}</td>
+      <td><span class="b bn">${p.issue}</span></td>
+      <td><span class="b ${statusMap[p.status]||'bn'}">${p.status}</span></td>
+      <td style="font-size:11px">${p.raisedBy}</td>
+      <td style="font-size:11px;color:${p.age<=2?'var(--red)':'var(--text2)'}">${p.age}d ago</td>
+    </tr>`
+  ).join('') || '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text3)">No PO issues found</td></tr>';
+}
+
+// ════════════════════════════════════════════════
+//  CONTRACTS
+// ════════════════════════════════════════════════
+function renderContracts() {
+  const expiring = contracts.filter(c => c.daysLeft <= 60);
+  const ca = document.getElementById('contract-alerts');
+  ca.innerHTML = expiring.map(c =>
+    `<div class="notice n-amber">📋 <strong>${c.id}</strong> — ${c.supplier}: ${c.desc} expires in <strong>${c.daysLeft} days</strong> (${c.expiry})</div>`
+  ).join('');
+  document.getElementById('contract-tbody').innerHTML = contracts.map(c => {
+    const dl = c.daysLeft;
+    const dlColor = dl <= 30 ? 'var(--red)' : dl <= 60 ? 'var(--amber)' : 'var(--green)';
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:11px">${c.id}</td>
+      <td style="font-weight:600">${c.supplier}</td>
+      <td style="font-size:11px;color:var(--text2)">${c.desc}</td>
+      <td style="font-weight:600">$${Number(c.value.replace(/,/g,'')).toLocaleString()}</td>
+      <td style="font-size:12px">${c.expiry}</td>
+      <td style="font-weight:700;color:${dlColor}">${dl}d</td>
+      <td>${dl <= 60 ? '<span class="b ba">Expiring Soon</span>' : '<span class="b bg">Active</span>'}</td>
+      <td><button class="btn btn-sm btn-p" onclick="openNewTicket('Contract Renewal')">Renew</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  FUSION CONNECT
+// ════════════════════════════════════════════════
+function loadConnectPage() {
+  if (fusionConfig.url) {
+    document.getElementById('fusion-url').value = fusionConfig.url;
+    document.getElementById('fusion-user').value = fusionConfig.user || '';
+    document.getElementById('sb-url').textContent = fusionConfig.url;
+  }
+  updateFusionBadge();
+}
+
+function updateFusionURL() {
+  const url = document.getElementById('fusion-url').value;
+  document.getElementById('sb-url').textContent = url || 'Not configured';
+}
+
+function toggleAuthFields() {
+  const m = document.getElementById('fusion-auth-method').value;
+  document.getElementById('auth-basic').style.display = m === 'basic' ? 'grid' : 'none';
+  document.getElementById('auth-oauth').style.display = m === 'oauth' ? 'grid' : 'none';
+}
+
+function testFusionConnection() {
+  const url = document.getElementById('fusion-url').value;
+  const res = document.getElementById('test-result');
+  if (!url) { res.textContent = '✗ Please enter a Fusion URL'; res.style.color = 'var(--red)'; return; }
+  res.textContent = 'Testing…'; res.style.color = 'var(--text3)';
+  // Simulate connection test (real app would call the Fusion REST endpoint)
+  setTimeout(() => {
+    if (url.includes('.oraclecloud.com') || url.includes('.oracle.com') || url.includes('fusion')) {
+      res.textContent = '✓ URL format valid — save to activate'; res.style.color = 'var(--green)';
+    } else {
+      res.textContent = '⚠ URL should be *.fa.*.oraclecloud.com'; res.style.color = 'var(--amber)';
+    }
+  }, 900);
+}
+
+function saveFusionConfig() {
+  const url = document.getElementById('fusion-url').value.trim();
+  if (!url) { toast('Please enter a Fusion URL'); return; }
+  fusionConfig = {
+    url, user: document.getElementById('fusion-user').value,
+    authMethod: document.getElementById('fusion-auth-method').value,
+    connectedAt: new Date().toISOString()
+  };
+  localStorage.setItem('pd_fusion_config', JSON.stringify(fusionConfig));
+  document.getElementById('sb-url').textContent = url;
+  updateFusionBadge();
+  toast('✓ Oracle Fusion connected successfully');
+}
+
+function updateFusionBadge() {
+  const badge = document.getElementById('fusion-badge');
+  const txt = document.getElementById('fusion-status-text');
+  if (fusionConfig.url) {
+    badge.classList.add('live');
+    txt.textContent = 'Fusion: Live';
+  } else {
+    badge.classList.remove('live');
+    txt.textContent = 'Fusion: Not connected';
+  }
+}
+
+function syncToFusion() {
+  if (!fusionConfig.url) { toast('Configure Fusion first'); nav('connect'); return; }
+  toast('↗ Synced to Oracle Fusion');
+}
+
+function syncFusionPOs() {
+  if (!fusionConfig.url) { toast('Configure Fusion connection first'); nav('connect'); return; }
+  toast('↗ Pulling POs from Fusion…');
+  setTimeout(() => { toast('✓ PO data refreshed from Fusion'); renderPOs(); }, 1400);
+}
+
+// ════════════════════════════════════════════════
+//  MODALS & FORMS
+// ════════════════════════════════════════════════
+function openNewTicket(catPreset) {
+  if (catPreset) document.getElementById('nt-cat').value = catPreset;
+  document.getElementById('ticket-modal').classList.add('open');
+}
+function openSupplierModal() { document.getElementById('supplier-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+
+function submitTicket() {
+  const subject = document.getElementById('nt-subject').value.trim();
+  if (!subject) { toast('Please enter a subject'); return; }
+  const newId = 'TKT-' + (1000 + tickets.length + 9);
+  const t = {
+    id: newId, subject, cat: document.getElementById('nt-cat').value,
+    priority: document.getElementById('nt-priority').value, status: 'Open',
+    supplier: document.getElementById('nt-supplier').value,
+    poRef: document.getElementById('nt-poref').value,
+    assignee: document.getElementById('nt-assignee').value,
+    created: new Date().toISOString().slice(0,10),
+    due: document.getElementById('nt-due').value || null,
+    desc: document.getElementById('nt-desc').value || 'No description provided.',
+    fusionId: document.getElementById('nt-fusion-id').value,
+    comments: [], history: [{ txt: 'Ticket created', time: 'Just now' }]
+  };
+  tickets.unshift(t);
+  closeModal('ticket-modal');
+  ['nt-subject','nt-supplier','nt-poref','nt-desc','nt-fusion-id','nt-due'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  toast('✓ Ticket ' + newId + ' created');
+  renderTickets(); renderDashboard();
+}
+
+function submitSupplier() {
+  const name = document.getElementById('ns-name').value.trim();
+  if (!name) { toast('Please enter a company name'); return; }
+  const newId = 'SUP-' + String(100 + suppliers.length).padStart(4,'0');
+  suppliers.unshift({
+    id: newId, name, cat: document.getElementById('ns-cat').value,
+    status: 'Pending Onboarding', score: 0, openTickets: 0,
+    contractExp: '—', fusionSync: !!document.getElementById('ns-fusion-id').value,
+    country: document.getElementById('ns-country').value || 'UAE',
+    spend: Number(document.getElementById('ns-spend').value) || 0
+  });
+  closeModal('supplier-modal');
+  toast('✓ Supplier ' + name + ' registered');
+  renderSuppliers();
+}
+
+function refreshAll() { renderDashboard(); toast('Dashboard refreshed'); }
+
+// ════════════════════════════════════════════════
+//  BADGE HELPERS
+// ════════════════════════════════════════════════
+function priBadge(p) {
+  const map = { Critical:'br', High:'ba', Medium:'bb', Low:'bg' };
+  return `<span class="b ${map[p]||'bn'}">${p}</span>`;
+}
+function statusBadge(s) {
+  const map = { 'Open':'br','In Progress':'ba','Pending Approval':'bp','Resolved':'bg','Closed':'bn' };
+  return `<span class="b ${map[s]||'bn'}">${s}</span>`;
+}
+function supStatusBadge(s) {
+  const map = { 'Active':'bg','Under Review':'ba','Suspended':'br','Pending Onboarding':'bb' };
+  return `<span class="b ${map[s]||'bn'}">${s}</span>`;
+}
+
+// ════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+seedData();
+updateFusionBadge();
+if (fusionConfig.url) document.getElementById('sb-url').textContent = fusionConfig.url;
+renderDashboard();
+</script>
+</body>
+</html>
